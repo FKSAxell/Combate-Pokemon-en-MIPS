@@ -1,7 +1,4 @@
-# Loop
-# 2019-2
-# Ejercicios de loop
-# PROGRAMA CON VALIDACI�N DE ERROR (CON NUEVO INGRESO)
+# Proyecto: Combate Pokemon en MIPS
 
         .data
 
@@ -13,7 +10,7 @@ myFile: .asciiz "pokeTypes.txt"      # filename for input
 buffer: .space 1024
 full: .space 1024
         #Declaro main como una funcion global
-        .globl main
+       .globl main
 		.text
 # La etiqueta main representa el punto de partida
 #Registro
