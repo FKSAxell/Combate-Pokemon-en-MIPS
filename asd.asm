@@ -1,15 +1,19 @@
 .data
     newline: .asciiz "\n"
-    tipo1: .asciiz "dragon"
-    tipo2: .asciiz "dragon"
-    pokemon1: .asciiz "Dragonite"
-    pokemon2: .asciiz "Goodra"
+    tipo1: .asciiz "grass"
+    tipo2: .asciiz "fire"
+    pokemon1: .asciiz "grass"
+    pokemon2: .asciiz "fire"
     newspace: .asciiz " "
     newpoint: .asciiz ": "
     vida: .asciiz "Vida: "
-    salud: .asciiz "Ataque: "
+    ataca: .asciiz " Ataque: "
     mensaje: .asciiz " ataca a "
     resultado:.asciiz "\nResultado del ataque: \n"
+    ganador: .asciiz " es el ganador!"
+    combatientes: .asciiz "Combatientes: "
+    vs: .asciiz " vs. "
+    am: .asciiz "¡"
 
 
     normal: .asciiz "normal"
@@ -42,71 +46,132 @@ main:
     la $a0, tipo2
     jal poketypes
     move $s3, $t8
-    addi $s6, $zero, 5
-    addi $s7, $zero, 5
-    bucle: 
-        bgtz  $s6, batalla1
-batalla1:
     jal factor
     jal ataque
-    add $s4, $zero, $t9
-    bgtz $s7, batalla2
-    jal fin
-batalla2:
+    add $s4, $zero, $t9 #ataque pkmn 1
     move $t0, $s3
     move $s3, $s2
     move $s2, $t0
     jal factor
     jal ataque
-    add $s5, $zero, $t9
-    bgtz $s6, ret
-    jal fin
-ret:
+    add $s5, $zero, $t9 #ataque pkmn 1
+    addi $s6, $zero, 5 #vida pkmn 1
+    addi $s7, $zero, 5 #vida pkmn 2   
+    li $v0, 4
+    la $a0, combatientes
+    syscall   
     li $v0, 4
     la $a0, pokemon1
-    syscall
+    syscall   
     li $v0, 4
-    la $a0, newpoint
-    syscall
+    la $a0, vs
+    syscall   
     li $v0, 4
-    la $a0, vida
-    syscall
-    li $v0, 1
-    move $a0, $s6
-    syscall
+    la $a0, pokemon2
+    syscall   
     li $v0, 4
-    la $a0, salud
+    la $a0, newline
     syscall
-    li $v0, 1
-    move $a0, $s4
-    syscall
+    bucle:  
+            li $v0, 4
+            la $a0, newline
+            syscall
+            jal batalla1
+            li $v0, 4
+            la $a0, newline
+            syscall
+            jal batalla2
+            j bucle
+            
+    
+            
+      
+    fin1:
+        li $v0, 4
+        la $a0, am
+        syscall
+        li $v0, 4
+        la $a0, pokemon1
+        syscall
+        li $v0, 4
+        la $a0, ganador
+        syscall
+
+        li $v0,10
+        syscall
+
+    fin2:
+        li $v0, 4
+        la $a0, am
+        syscall
+        li $v0, 4
+        la $a0, pokemon2
+        syscall
+        li $v0, 4
+        la $a0, ganador
+        syscall
+
+        li $v0,10
+        syscall
+
+batalla1:
+        la $t7, ($ra)
+        jal presentar1
+        li $v0, 4
+        la $a0, mensaje
+        syscall
+        jal presentar2       
+
+        li $v0, 4
+        la $a0, resultado
+        syscall
+
+        sub $s7, $s7,$s4
+        jal comprobar1
+
+        jal presentar1
+        li $v0, 4
+        la $a0, newline
+        syscall
+        jal presentar2
+        li $v0, 4
+        la $a0, newline
+        syscall
+
+        ble	$s6, $zero, fin2
+        ble	$s7, $zero, fin1
+        jr $t7
+        
+batalla2:
+    la $t7, ($ra)
+    jal presentar2
     li $v0, 4
     la $a0, mensaje
     syscall
-    li $v0, 4
-    la $a0, pokemon2
-    syscall
-    li $v0, 4
-    la $a0, newpoint
-    syscall
-    li $v0, 4
-    la $a0, vida
-    syscall
-    li $v0, 1
-    move $a0, $s7
-    syscall
-    li $v0, 4
-    la $a0, salud
-    syscall
-    li $v0, 1
-    move $a0, $s5
-    syscall
+    jal presentar1       
+
     li $v0, 4
     la $a0, resultado
     syscall
 
-    sub $s6,$s6, $s5
-    sub $s7,$s7, $s4
+    sub $s6, $s6,$s5
+    jal comprobar2
+
+    jal presentar1
+    li $v0, 4
+    la $a0, newline
+    syscall
+    jal presentar2
+    li $v0, 4
+    la $a0, newline
+    syscall
+
+    ble	$s6, $zero, fin2
+    ble	$s7, $zero, fin1
+    
+    jr $t7
+        
+presentar1:
     li $v0, 4
     la $a0, pokemon1
     syscall
@@ -120,14 +185,14 @@ ret:
     move $a0, $s6
     syscall
     li $v0, 4
-    la $a0, salud
+    la $a0, ataca
     syscall
     li $v0, 1
     move $a0, $s4
     syscall
-    li $v0, 4
-    la $a0, newline
-    syscall
+    jr $ra
+
+presentar2:
     li $v0, 4
     la $a0, pokemon2
     syscall
@@ -141,27 +206,37 @@ ret:
     move $a0, $s7
     syscall
     li $v0, 4
-    la $a0, salud
+    la $a0, ataca
     syscall
     li $v0, 1
     move $a0, $s5
-    syscall  
-    
-    
-    li $v0, 4
-    la $a0, newline
     syscall
-    
-    j bucle
-fin:
-    li $v0,10
-    syscall
+    jr $ra
+comprobar1:
+        la $t6, ($ra)
+        blt $s7, $zero, cambio1
+        jr $t6
+
+        cambio1:
+            add $s7, $zero, $zero
+            jr $t6
+comprobar2:
+        la $t6, ($ra)
+        blt $s6, $zero, cambio2
+        jr $t6
+
+        cambio2:
+            add $s6, $zero, $zero
+            jr $t6
+        
+
 
 ataque: 
     beq $t4, $t8, dividir
     bne $t4, $t8, multiplicar
     dividir: 
         addi $t9, $zero, 1
+        jal $ra
     multiplicar:
         addi $t1, $zero, 1
         addi $t2, $zero, 2
@@ -170,11 +245,14 @@ ataque:
         beq $t4, $t2, dos
         cero:
             addi $t9, $zero, 0
+            jal $ra
         uno:
             addi $t9, $zero, 2
+            jal $ra
         dos:
             addi $t9, $zero, 4
-    jal $ra
+            jal $ra
+    
 
 poketypes:
     la $t7, ($ra)
